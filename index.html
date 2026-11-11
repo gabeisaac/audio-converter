@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Converter — ShrimpWeb</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --sw-purple: #8559A5;
+            --sw-teal: #59a59a;
+            --sw-purple-deep: #6d4786;
+            --sw-teal-deep: #3a7a7a;
+            --sw-grad: linear-gradient(90deg, #8559A5 10%, #59a59a 90%);
+            --sw-ink: #111827;
+            --sw-muted: #4b5563;
+            --sw-soft: #6b7280;
+            --sw-line: #ece6f3;
+            --sw-wash: #f7f6fa;
+            --sw-white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background-color: #ffffff;
+            color: var(--sw-ink);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .gi-ripple-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100vh;
+            overflow: hidden;
+            background: #ffffff;
+            isolation: isolate;
+            pointer-events: none;
+        }
+
+        .gi-ripple-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+        }
+
+        .sw-page {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sw-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.85rem 1.5rem;
+            background: rgba(255, 255, 255, 0.78);
+            border-bottom: 1px solid var(--sw-line);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .sw-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .sw-brand-mark {
+            width: 42px;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 2px 4px rgba(133, 89, 165, 0.2));
+        }
+
+        .sw-brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+        }
+
+        .sw-brand-name {
+            font-family: Futura, 'Trebuchet MS', Arial, sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            background: var(--sw-grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .sw-brand-tag {
+            font-family: Futura, 'Trebuchet MS', Arial, sans-serif;
+            font-size: 0.68rem;
+            letter-spacing: 0.08em;
+            color: var(--sw-muted);
+            margin-top: 4px;
+            text-transform: none;
+        }
+
+        .sw-header-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--sw-muted);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid var(--sw-line);
+            background: var(--sw-wash);
+            transition: color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .sw-header-link:hover {
+            color: var(--sw-purple);
+            box-shadow: 0 2px 10px rgba(133, 89, 165, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .audio-converter {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 2.4rem 1.25rem 3.5rem;
+            width: 100%;
+            flex: 1;
+        }
+
+        .sw-kicker {
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--sw-purple);
+            margin-bottom: 0.7rem;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: clamp(2rem, 5vw, 3.1rem);
+            font-weight: 900;
+            letter-spacing: -1.4px;
+            line-height: 1.12;
+            margin-bottom: 0.65rem;
+            background: var(--sw-grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .sw-sub {
+            text-align: center;
+            color: var(--sw-muted);
+            font-size: clamp(1rem, 2vw, 1.15rem);
+            font-weight: 500;
+            max-width: 560px;
+            margin: 0 auto 1.15rem;
+            line-height: 1.55;
+        }
+
+        .sw-points {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 0 auto 1.8rem;
+        }
+
+        .sw-point {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.42rem 0.78rem;
+            border-radius: 999px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: var(--sw-muted);
+            background: rgba(247, 246, 250, 0.86);
+            border: 1px solid var(--sw-line);
+        }
+
+        .converter-shell {
+            position: relative;
+        }
+
+        .feature-accent-bar {
+            width: 100%;
+            height: 12px;
+            margin: 0 auto -6px auto;
+            background: var(--sw-grad);
+            border-radius: 14px 14px 0 0;
+            box-shadow: 0 2px 8px rgba(133, 89, 165, 0.12);
+            position: relative;
+            z-index: 2;
+        }
+
+        .converter-box {
+            background: rgba(255, 255, 255, 0.92);
+            padding: 2rem 1.7rem 1.7rem;
+            border-radius: 0 0 22px 22px;
+            box-shadow: 0 8px 36px rgba(133, 89, 165, 0.1);
+            border: 1px solid rgba(236, 230, 243, 0.9);
+            border-top: none;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .upload-section {
+            margin-bottom: 1.4rem;
+            text-align: center;
+            border: 2px dashed #d8cde6;
+            padding: 2.1rem 1.4rem;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            background: linear-gradient(180deg, rgba(247, 246, 250, 0.7) 0%, rgba(255, 255, 255, 0.4) 100%);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 0.55rem;
+        }
+
+        .upload-section p {
+            color: var(--sw-muted);
+            font-weight: 500;
+        }
+
+        .upload-section p + p {
+            margin: 0.35rem 0 0.85rem;
+            color: var(--sw-soft);
+            font-size: 0.92rem;
+        }
+
+        .upload-section.drag-over {
+            border-color: var(--sw-purple);
+            background-color: rgba(133, 89, 165, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(133, 89, 165, 0.12);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 0.85rem 1.55rem;
+            background: var(--sw-grad);
+            color: white;
+            border-radius: 0.7rem;
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            box-shadow: 0 4px 16px rgba(133, 89, 165, 0.18);
+            transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .file-input-label:hover {
+            background: linear-gradient(90deg, #6d4786 10%, #3a7a7a 90%);
+            box-shadow: 0 8px 22px rgba(133, 89, 165, 0.24);
+            transform: translateY(-1px);
+        }
+
+        #convertButton {
+            background: var(--sw-grad);
+            color: white;
+            border: none;
+            padding: 0.95rem 1.6rem;
+            border-radius: 0.7rem;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            width: 100%;
+            max-width: none;
+            display: block;
+            margin: 1.15rem 0 0;
+            box-shadow: 0 6px 20px rgba(133, 89, 165, 0.2);
+            font-family: inherit;
+        }
+
+        #convertButton:hover:not(:disabled) {
+            background: linear-gradient(90deg, #6d4786 10%, #3a7a7a 90%);
+            box-shadow: 0 10px 26px rgba(133, 89, 165, 0.25);
+            transform: translateY(-2px);
+        }
+
+        #convertButton:disabled {
+            background: #cfc6d8;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .options-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .option,
+        .format-select {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .option label,
+        .format-select label,
+        .audio-effects label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        select, input[type="number"] {
+            padding: 0.72rem 0.85rem;
+            border: 1px solid var(--sw-line);
+            border-radius: 10px;
+            background-color: white;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--sw-ink);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        select:focus, input[type="number"]:focus, input[type="range"]:focus {
+            outline: none;
+            border-color: var(--sw-purple);
+            box-shadow: 0 0 0 3px rgba(133, 89, 165, 0.14);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--sw-purple);
+        }
+
+        .advanced-settings {
+            margin-top: 0.4rem;
+            padding: 1rem;
+            background-color: var(--sw-wash);
+            border-radius: 14px;
+            border: 1px solid var(--sw-line);
+            display: none;
+        }
+
+        .advanced-settings.active {
+            display: block;
+        }
+
+        .toggle-advanced {
+            background: none;
+            border: none;
+            color: var(--sw-purple);
+            cursor: pointer;
+            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.92rem;
+        }
+
+        .toggle-advanced:hover {
+            text-decoration: underline;
+            color: var(--sw-purple-deep);
+        }
+
+        .mono-toggle {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            margin: 0;
+            padding: 0.8rem 0.95rem;
+            border: 1px solid var(--sw-line);
+            border-radius: 12px;
+            background: var(--sw-white);
+            cursor: pointer;
+        }
+
+        .mono-toggle input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        .mono-switch {
+            position: relative;
+            flex: 0 0 auto;
+            width: 2.7rem;
+            height: 1.55rem;
+            border-radius: 999px;
+            background: #d9d1e3;
+            transition: background 0.2s ease;
+        }
+
+        .mono-switch::after {
+            content: "";
+            position: absolute;
+            top: 0.16rem;
+            left: 0.16rem;
+            width: 1.23rem;
+            height: 1.23rem;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(17, 24, 39, 0.18);
+            transition: transform 0.2s ease;
+        }
+
+        .mono-toggle input:checked + .mono-switch {
+            background: var(--sw-grad);
+        }
+
+        .mono-toggle input:checked + .mono-switch::after {
+            transform: translateX(1.15rem);
+        }
+
+        .mono-toggle input:focus-visible + .mono-switch {
+            box-shadow: 0 0 0 3px rgba(133, 89, 165, 0.2);
+        }
+
+        .mono-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 0.05rem;
+            min-width: 0;
+        }
+
+        .mono-copy strong {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .mono-copy span {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--sw-soft);
+        }
+
+        .quality-presets {
+            display: flex;
+            gap: 0.55rem;
+            margin-bottom: 1.15rem;
+            flex-wrap: wrap;
+        }
+
+        .preset-button {
+            padding: 0.55rem 0.95rem;
+            border: 1px solid var(--sw-line);
+            border-radius: 999px;
+            background: var(--sw-white);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--sw-muted);
+        }
+
+        .preset-button:hover {
+            background: var(--sw-wash);
+            border-color: #d8cde6;
+        }
+
+        .preset-button.active {
+            background: var(--sw-grad);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(133, 89, 165, 0.18);
+        }
+
+        .progress-section {
+            margin-top: 0.35rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 18px;
+            background-color: var(--sw-wash);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border: 1px solid var(--sw-line);
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: var(--sw-grad);
+            transition: width 0.3s ease;
+            text-align: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 16px;
+        }
+
+        .status {
+            text-align: center;
+            margin: 1rem 0;
+            padding: 0.7rem 0.85rem;
+            border-radius: 12px;
+            display: none;
+            font-weight: 600;
+            font-size: 0.94rem;
+        }
+
+        .status.success {
+            background-color: rgba(89, 165, 154, 0.14);
+            color: #1f6f66;
+        }
+
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.info {
+            background-color: rgba(133, 89, 165, 0.12);
+            color: #5a3a72;
+        }
+
+        .file-list {
+            margin: 0 0 1rem;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0.85rem;
+            border: 1px solid var(--sw-line);
+            border-radius: 12px;
+            background: var(--sw-white);
+            margin-bottom: 0.5rem;
+        }
+
+        .file-item:last-child {
+            border-bottom: 1px solid var(--sw-line);
+            margin-bottom: 0;
+        }
+
+        .file-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-name {
+            font-weight: 700;
+            color: var(--sw-ink);
+        }
+
+        .file-size {
+            color: var(--sw-soft);
+            font-size: 0.86rem;
+        }
+
+        .remove-file {
+            color: #c45b6b;
+            cursor: pointer;
+            padding: 0.25rem 0.45rem;
+            font-size: 1.2rem;
+            line-height: 1;
+            border-radius: 8px;
+        }
+
+        .remove-file:hover {
+            background: #fdecef;
+        }
+
+        .download-link {
+            display: block;
+            text-align: center;
+            margin-top: 0.85rem;
+            padding: 0.9rem 1rem;
+            background: var(--sw-grad);
+            color: white;
+            text-decoration: none;
+            border-radius: 0.7rem;
+            font-weight: 800;
+            box-shadow: 0 4px 16px rgba(133, 89, 165, 0.16);
+            transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .download-link:hover {
+            background: linear-gradient(90deg, #6d4786 10%, #3a7a7a 90%);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(133, 89, 165, 0.22);
+        }
+
+        @media (max-width: 600px) {
+            .sw-header {
+                padding: 0.75rem 1rem;
+            }
+
+            .sw-brand-tag {
+                display: none;
+            }
+
+            .audio-converter {
+                padding: 1.6rem 0.9rem 2.4rem;
+            }
+
+            .converter-box {
+                padding: 1.25rem 1rem 1.15rem;
+            }
+
+            .options-section {
+                grid-template-columns: 1fr;
+            }
+
+            .quality-presets {
+                flex-direction: column;
+            }
+
+            .preset-button {
+                width: 100%;
+                text-align: center;
+            }
+
+            .sw-header-link {
+                font-size: 0.8rem;
+                padding: 0.42rem 0.7rem;
+            }
+        }
+
+        .audio-preview {
+            margin: 8px 0 16px;
+            padding: 15px;
+            background: var(--sw-wash);
+            border-radius: 14px;
+            border: 1px solid var(--sw-line);
+            display: none;
+        }
+
+        .audio-preview audio {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .metadata {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .metadata-item {
+            background: white;
+            padding: 8px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid var(--sw-line);
+        }
+
+        .metadata-label {
+            font-size: 0.8em;
+            color: var(--sw-soft);
+        }
+
+        .metadata-value {
+            font-weight: 800;
+            color: var(--sw-ink);
+        }
+
+        .audio-effects {
+            margin: 12px 0 16px;
+            padding: 16px;
+            background: var(--sw-wash);
+            border-radius: 14px;
+            border: 1px solid var(--sw-line);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out, margin 0.3s ease-out;
+            display: none;
+        }
+
+        .audio-effects.active {
+            max-height: 500px;
+            padding: 16px;
+            margin: 12px 0 16px;
+            display: block;
+        }
+
+        .audio-effects h3 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 0.7rem;
+            background: var(--sw-grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .effect-control {
+            margin: 10px 0;
+        }
+
+        .effect-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .waveform-container {
+            width: 100%;
+            height: 100px;
+            background: #ffffff;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.3s ease-out, margin 0.3s ease-out;
+            border-radius: 10px;
+            border: 1px solid var(--sw-line);
+        }
+
+        .waveform-container.active {
+            max-height: 100px;
+            margin: 10px 0;
+        }
+
+        .waveform {
+            width: 100%;
+            height: 100%;
+        }
+
+        .waveform-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: rgba(133, 89, 165, 0.28);
+            pointer-events: none;
+        }
+
+        .trim-handles {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--sw-grad);
+            cursor: ew-resize;
+        }
+
+        .trim-start {
+            left: 0;
+        }
+
+        .trim-end {
+            right: 0;
+        }
+
+        .shortcut-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(17, 24, 39, 0.88);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            display: none;
+            z-index: 20;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+        }
+
+        .sw-footer {
+            margin-top: auto;
+            padding: 1.15rem 1.5rem 1.4rem;
+            border-top: 1px solid var(--sw-line);
+            background: rgba(248, 249, 250, 0.86);
+            text-align: center;
+            color: var(--sw-soft);
+            font-size: 0.86rem;
+        }
+
+        .sw-footer a {
+            color: var(--sw-muted);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .sw-footer a:hover {
+            color: var(--sw-purple);
+        }
+
+        .sw-footer-sep {
+            color: #d1d5db;
+            margin: 0 0.45rem;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .gi-ripple-canvas {
+                display: none;
+            }
+
+            .file-input-label,
+            #convertButton,
+            .download-link,
+            .preset-button,
+            .sw-header-link {
+                transition: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gi-ripple-bg" aria-hidden="true">
+        <canvas class="gi-ripple-canvas"></canvas>
+    </div>
+    <script>
+      (function () {
+        var scriptEl = document.currentScript;
+        if (!scriptEl) {
+          return;
+        }
+        var root = null;
+        if (scriptEl.previousElementSibling && scriptEl.previousElementSibling.classList && scriptEl.previousElementSibling.classList.contains("gi-ripple-bg")) {
+          root = scriptEl.previousElementSibling;
+        } else {
+          var all = document.querySelectorAll(".gi-ripple-bg");
+          root = all.length ? all[all.length - 1] : null;
+        }
+        if (!root) return;
+
+        var canvas = root.querySelector(".gi-ripple-canvas");
+        if (!canvas) {
+          return;
+        }
+
+        var ctx = canvas.getContext("2d", { alpha: true });
+        if (!ctx) {
+          return;
+        }
+
+        if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          return;
+        }
+
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var w = 0;
+        var h = 0;
+        var t = 0;
+        var raf = null;
+        var waterPower = 0.72;
+
+        function resize() {
+          var rect = root.getBoundingClientRect();
+          w = Math.max(2, Math.floor(rect.width));
+          h = Math.max(2, Math.floor(rect.height));
+          canvas.width = Math.floor(w * dpr);
+          canvas.height = Math.floor(h * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function drawBaseWhite() {
+          ctx.clearRect(0, 0, w, h);
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, w, h);
+        }
+
+        function drawGradientWater(time, intensity) {
+          if (intensity <= 0.001) return;
+
+          var grad = ctx.createLinearGradient(0, 0, w, h);
+          grad.addColorStop(0, "#8559A5");
+          grad.addColorStop(1, "#59a59a");
+
+          ctx.save();
+          ctx.globalAlpha = 0.12 * intensity;
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, w, h);
+
+          var wave1 = 8 + Math.sin(time * 0.0006) * 2;
+          var wave2 = 13 + Math.cos(time * 0.0004) * 2;
+
+          ctx.globalAlpha = 0.09 * intensity;
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.moveTo(0, h * 0.64);
+          for (var x = 0; x <= w; x += 12) {
+            var y = h * 0.64 + Math.sin((x * 0.015) + time * 0.0011) * wave1;
+            ctx.lineTo(x, y);
+          }
+          ctx.lineTo(w, h);
+          ctx.lineTo(0, h);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.globalAlpha = 0.055 * intensity;
+          ctx.beginPath();
+          ctx.moveTo(0, h * 0.5);
+          for (var x2 = 0; x2 <= w; x2 += 14) {
+            var y2 = h * 0.5 + Math.sin((x2 * 0.011) - time * 0.00095) * wave2;
+            ctx.lineTo(x2, y2);
+          }
+          ctx.lineTo(w, h);
+          ctx.lineTo(0, h);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+
+        function render(ts) {
+          t = ts || 0;
+          drawBaseWhite();
+          drawGradientWater(t, waterPower);
+          raf = requestAnimationFrame(render);
+        }
+
+        resize();
+        render(0);
+
+        var ro = null;
+        if ("ResizeObserver" in window) {
+          ro = new ResizeObserver(resize);
+          ro.observe(root);
+        } else {
+          window.addEventListener("resize", resize);
+        }
+
+        root.__giRippleDestroy = function () {
+          if (raf) cancelAnimationFrame(raf);
+          if (ro) ro.disconnect();
+          window.removeEventListener("resize", resize);
+        };
+      })();
+    </script>
+
+    <div class="sw-page">
+        <header class="sw-header">
+            <a class="sw-brand" href="https://shrimpweb.com/">
+                <svg class="sw-brand-mark" width="42" viewBox="0 0 170.6 186.16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="swHeaderLogoGradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="170.6" y2="186.16">
+                            <stop offset="0%" stop-color="#8559A5"/>
+                            <stop offset="50%" stop-color="#59a59a"/>
+                            <stop offset="100%" stop-color="#5f3f78"/>
+                        </linearGradient>
+                    </defs>
+                    <g fill="url(#swHeaderLogoGradient)" fill-rule="evenodd">
+                        <path d="M146.84,78.19c-2.93,11.37-13.52,20.13-25.11,21.52-12.79,1.54-27.36-.75-40.26.26-18.09,1.42-23.05,26.22-7.76,35.35,6.87,4.1,11.72,1.98,18.78,2.8,1.98.23,3.04,1.23,4.58,2.29l37.58-16.53c4.87-1.62,10.68,2.64,11.22,7.62,1.11,10.24-8.43,20.27-17.51,23.5,9.08,2.87,18.8,13.44,17.48,23.48-.7,5.32-7.22,9.02-12.21,7.21-12.04-4.8-24.05-9.67-35.87-14.99-.74-.14-.77.62-1.18.96-1.29,1.08-3.38,2.18-5.06,2.37-6.62.77-14.56-.53-21.32.04-53.64-1.58-87.18-58.5-61.29-106.39,11.53-21.34,34.61-36.97,59.13-38.21,16.77-.85,34.24.66,51.09,0,14.25.83,26.32,10.95,28.51,25.19.51.72,3.75-.49,4.51-.79,19.13-7.42,15.47-35.51-5.45-36.88H45.76c-6.17.16-14.99-7.01-14.99-13.3V0l5.28.24c-.63,5.67,3.24,10.37,8.78,11.24l102.12.02c28.46,1.87,32.15,41.79,4.43,48.09-1.14.26-2.48.21-3.36.72v11.87M66.71,69.08c-.89,6.31.11,12.29,5.33,16.37,2.81,2.2,3.13,1.04,6.13.65,13.37-1.75,28.02.44,41.46-.5,7.42-.52,13.01-7.38,13.53-14.52.86-11.69.68-25.11-13.79-26.97-30.01,1.91-60.46-7.29-85.11,14.39-31.37,27.6-23.48,82.08,16.53,96.86,1.95.72,6.71,2.4,8.58,2.1,3-.48,8.18-5.74,8.79-8.8-9.08-4.2-15.62-12.47-17.78-22.26-2.96-.39-5.72-.56-8.63-1.32-1.01-.26-5.99-1.9-6.31-2.57-.35-.72,1.63-3.67,1.97-4.57,3.95,1.23,7.88,2.59,12.09,2.56.45-.33.17-3.31.23-4.09.38-4.65,1.92-9.33,4.07-13.43-6.78-2.23-12.98-7.03-15.84-13.64.8-.26,4.29-2.88,4.79-2.52,1.43,3.61,4.44,6.71,7.77,8.66,1.23.72,5.69,2.83,6.88,2.24.15-.08,1.79-2.1,2.27-2.53,2.38-2.16,5.13-3.86,7.8-5.63-.98-1.25-2.18-2.32-3.07-3.64-3.57-5.26-4.3-11.94-2.92-18.06l5.24,1.23Z"/>
+                        <path d="M115.84,52.09c4.52-.4,8.24,4.28,6.88,8.57-1.86,5.84-10.17,6.12-12.39.4-1.6-4.14,1.05-8.58,5.51-8.97Z"/>
+                        <path d="M141.73,71.67c.44-.78,4.28-.31,5.17-.19,22.65,3.03,23.4,30.12.28,35.7l-75.54,14.45c-6.91,1.13,0,0-12.54,1.94l-1.85.23,1.66,5.8c12.64-2.58,6.41-1.67,12.64-2.58l76.85-14.71c31.46-7.61,28.71-45.8-3.35-46-1.31,0-2.8.32-3.88.02"/>
+                    </g>
+                </svg>
+                <span class="sw-brand-text">
+                    <span class="sw-brand-name">ShrimpWeb</span>
+                    <span class="sw-brand-tag">Design. Hosting. Support.</span>
+                </span>
+            </a>
+            <a class="sw-header-link" href="https://shrimpweb.com/">Back to site</a>
+        </header>
+
+        <div class="audio-converter">
+            <p class="sw-kicker">Free tool</p>
+            <h1>Audio Converter</h1>
+            <p class="sw-sub">Drop in audio files, pick a format, and download a clean conversion — same engine, new ShrimpWeb look.</p>
+            <div class="sw-points" aria-label="Supported formats">
+                <span class="sw-point">MP3</span>
+                <span class="sw-point">WAV</span>
+                <span class="sw-point">FLAC</span>
+                <span class="sw-point">M4A / AAC</span>
+                <span class="sw-point">OGG</span>
+            </div>
+            <div class="converter-shell">
+                <div class="feature-accent-bar"></div>
+                <div class="converter-box">
+            <div class="upload-section" id="dropZone">
+                <div class="upload-icon">📁</div>
+                <p>Drag & drop audio files here</p>
+                <p>or</p>
+                <label for="fileInput" class="file-input-label">Choose Files</label>
+                <input type="file" id="fileInput" multiple accept="audio/*" style="display: none;">
+            </div>
+            
+            <div class="file-list" id="fileList"></div>
+
+            <!-- Audio Preview with Waveform -->
+            <div class="audio-preview" id="audioPreview">
+                <div class="waveform-container">
+                    <canvas class="waveform" id="waveform"></canvas>
+                    <div class="waveform-progress" id="waveformProgress"></div>
+                    <div class="trim-handles trim-start" id="trimStart"></div>
+                    <div class="trim-handles trim-end" id="trimEnd"></div>
+                </div>
+                <audio id="previewPlayer" controls></audio>
+                <div class="metadata" id="metadata"></div>
+            </div>
+
+            <!-- Audio Effects -->
+            <div class="audio-effects" id="audioEffects">
+                <h3>Audio Effects</h3>
+                <div class="effect-control">
+                    <div class="effect-label">
+                        <span>Fade In (seconds)</span>
+                        <span id="fadeInValue">0</span>
+                    </div>
+                    <input type="range" id="fadeIn" min="0" max="5" step="0.1" value="0">
+                </div>
+                <div class="effect-control">
+                    <div class="effect-label">
+                        <span>Fade Out (seconds)</span>
+                        <span id="fadeOutValue">0</span>
+                    </div>
+                    <input type="range" id="fadeOut" min="0" max="5" step="0.1" value="0">
+                </div>
+                <div class="effect-control">
+                    <div class="effect-label">
+                        <span>Volume Boost (%)</span>
+                        <span id="volumeBoostValue">0</span>
+                    </div>
+                    <input type="range" id="volumeBoost" min="-50" max="50" step="1" value="0">
+                </div>
+                <div class="effect-control">
+                    <label for="equalizer">Equalizer Preset:</label>
+                    <select id="equalizer">
+                        <option value="none">None</option>
+                        <option value="bass">Bass Boost</option>
+                        <option value="treble">Treble Boost</option>
+                        <option value="vocal">Vocal Boost</option>
+                        <option value="flat">Flat</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="quality-presets">
+                <button class="preset-button" data-preset="high">High Quality</button>
+                <button class="preset-button" data-preset="medium">Medium Quality</button>
+                <button class="preset-button" data-preset="small">Small File Size</button>
+            </div>
+
+            <div class="options-section">
+                <div class="format-select">
+                    <label for="formatSelect">Output Format:</label>
+                    <select id="formatSelect">
+                        <option value="mp3">MP3</option>
+                        <option value="wav">WAV</option>
+                        <option value="ogg">OGG</option>
+                        <option value="m4a">M4A</option>
+                        <option value="flac">FLAC</option>
+                        <option value="aac">AAC</option>
+                        <option value="wma">WMA</option>
+                        <option value="aiff">AIFF</option>
+                    </select>
+                </div>
+                
+                <div class="option">
+                    <label for="bitrateRange">Bitrate: <span id="bitrateValue">192</span> kbps</label>
+                    <input type="range" id="bitrateRange" min="64" max="320" value="192" step="32">
+                </div>
+                <label class="mono-toggle" for="monoToggle">
+                    <input type="checkbox" id="monoToggle">
+                    <span class="mono-switch" aria-hidden="true"></span>
+                    <span class="mono-copy">
+                        <strong>Convert to mono</strong>
+                        <span>Mix both channels into one.</span>
+                    </span>
+                </label>
+            </div>
+
+            <button class="toggle-advanced">Show Advanced Settings</button>
+            
+            <div class="advanced-settings" id="advancedSettings">
+                <div class="options-section">
+                    <div class="option">
+                        <label for="sampleRate">Sample Rate:</label>
+                        <select id="sampleRate">
+                            <option value="44100">44.1 kHz (CD Quality)</option>
+                            <option value="48000">48 kHz (DVD Quality)</option>
+                            <option value="96000">96 kHz (High Quality)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option">
+                        <label for="channels">Channels:</label>
+                        <select id="channels">
+                            <option value="1">Mono</option>
+                            <option value="2" selected>Stereo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="options-section">
+                    <div class="option">
+                        <label for="volume">Volume Normalization:</label>
+                        <select id="volume">
+                            <option value="0">Off</option>
+                            <option value="1">Standard (-16 LUFS)</option>
+                            <option value="2">Streaming (-14 LUFS)</option>
+                            <option value="3">Loud (-12 LUFS)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-section">
+                <div class="progress-bar">
+                    <div id="progressBar" class="progress"></div>
+                </div>
+                <div id="status" class="status"></div>
+                <div id="downloadLinks"></div>
+            </div>
+
+            <button id="convertButton" disabled>Convert</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="sw-footer">
+            <a href="https://shrimpweb.com/">ShrimpWeb</a>
+            <span class="sw-footer-sep">•</span>
+            <a href="https://shrimpweb.com/privacy">Privacy</a>
+            <span class="sw-footer-sep">•</span>
+            <a href="https://shrimpweb.com/terms">Terms</a>
+            <span class="sw-footer-sep">•</span>
+            <a href="https://shrimpweb.com/impressum">Imprint</a>
+        </footer>
+    </div>
+
+    <!-- Keyboard Shortcut Hint -->
+    <div class="shortcut-hint" id="shortcutHint"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const convertButton = document.getElementById('convertButton');
+            const formatSelect = document.getElementById('formatSelect');
+            const bitrateRange = document.getElementById('bitrateRange');
+            const statusDiv = document.getElementById('status');
+            const progressBar = document.getElementById('progressBar');
+            const fileList = document.getElementById('fileList');
+            const dropZone = document.getElementById('dropZone');
+            const advancedSettings = document.getElementById('advancedSettings');
+            const toggleAdvanced = document.querySelector('.toggle-advanced');
+            const presetButtons = document.querySelectorAll('.preset-button');
+            const sampleRate = document.getElementById('sampleRate');
+            const channels = document.getElementById('channels');
+            const monoToggle = document.getElementById('monoToggle');
+            const volume = document.getElementById('volume');
+
+            function applyMono(on) {
+                monoToggle.checked = on;
+                channels.value = on ? '1' : '2';
+            }
+
+            monoToggle.addEventListener('change', () => {
+                channels.value = monoToggle.checked ? '1' : '2';
+            });
+
+            channels.addEventListener('change', () => {
+                monoToggle.checked = channels.value === '1';
+            });
+
+            let files = [];
+
+            // Toggle advanced settings
+            toggleAdvanced.addEventListener('click', () => {
+                advancedSettings.classList.toggle('active');
+                toggleAdvanced.textContent = advancedSettings.classList.contains('active') 
+                    ? 'Hide Advanced Settings' 
+                    : 'Show Advanced Settings';
+            });
+
+            // Drag and drop handlers
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                handleFiles(e.dataTransfer.files);
+            });
+
+            // File input handler
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+
+            // Update bitrate display
+            const bitrateValue = document.getElementById('bitrateValue');
+            bitrateRange.addEventListener('input', () => {
+                bitrateValue.textContent = bitrateRange.value;
+            });
+
+            // Update quality presets to also update the bitrate display
+            presetButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    presetButtons.forEach(b => b.classList.remove('active'));
+                    button.classList.add('active');
+
+                    switch(button.dataset.preset) {
+                        case 'high':
+                            bitrateRange.value = '320';
+                            bitrateValue.textContent = '320';
+                            sampleRate.value = '48000';
+                            applyMono(false);
+                            volume.value = '0';
+                            break;
+                        case 'medium':
+                            bitrateRange.value = '192';
+                            bitrateValue.textContent = '192';
+                            sampleRate.value = '44100';
+                            applyMono(false);
+                            volume.value = '1';
+                            break;
+                        case 'small':
+                            bitrateRange.value = '128';
+                            bitrateValue.textContent = '128';
+                            sampleRate.value = '44100';
+                            applyMono(true);
+                            volume.value = '2';
+                            break;
+                    }
+                });
+            });
+
+            function handleFiles(newFiles) {
+                files = Array.from(newFiles);
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+                
+                files.forEach(file => {
+                    addFileToList(file);
+                });
+                
+                updateConvertButton();
+            }
+
+            function addFileToList(file) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const fileInfo = document.createElement('div');
+                fileInfo.className = 'file-info';
+                
+                const fileName = document.createElement('div');
+                fileName.className = 'file-name';
+                fileName.textContent = file.name;
+                
+                const fileSize = document.createElement('div');
+                fileSize.className = 'file-size';
+                fileSize.textContent = formatFileSize(file.size);
+                
+                const removeButton = document.createElement('span');
+                removeButton.className = 'remove-file';
+                removeButton.innerHTML = '&times;';
+                removeButton.onclick = () => {
+                    files = files.filter(f => f !== file);
+                    fileItem.remove();
+                    updateConvertButton();
+                };
+                
+                fileInfo.appendChild(fileName);
+                fileInfo.appendChild(fileSize);
+                fileItem.appendChild(fileInfo);
+                fileItem.appendChild(removeButton);
+                fileList.appendChild(fileItem);
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            function updateConvertButton() {
+                convertButton.disabled = files.length === 0;
+            }
+
+            convertButton.addEventListener('click', async function() {
+                if (files.length === 0) {
+                    showStatus('Please select files first', 'error');
+                    return;
+                }
+
+                try {
+                    showStatus(`Converting ${files.length} file(s)...`, 'info');
+                    progressBar.style.width = '0%';
+                    progressBar.textContent = '0%';
+
+                    const downloadLinks = document.getElementById('downloadLinks');
+                    downloadLinks.innerHTML = '';
+
+                    // For single file, download directly
+                    if (files.length === 1) {
+                        const file = files[0];
+                        const formData = new FormData();
+                        formData.append('audioFile', file);
+                        formData.append('targetFormat', formatSelect.value);
+                        formData.append('bitrate', bitrateRange.value);
+                        formData.append('sampleRate', sampleRate.value);
+                        formData.append('channels', channels.value);
+                        formData.append('volume', volume.value);
+
+                        const response = await fetch('converter.php', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Server error: ${response.status}`);
+                        }
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            const downloadLink = document.createElement('a');
+                            downloadLink.href = result.downloadUrl;
+                            downloadLink.className = 'download-link';
+                            downloadLink.textContent = `Download ${result.filename}`;
+                            downloadLinks.appendChild(downloadLink);
+                            showStatus('Conversion completed!', 'success');
+                        } else {
+                            throw new Error(result.message);
+                        }
+                    } 
+                    // For multiple files, create ZIP
+                    else {
+                        const convertedFiles = [];
+                        
+                        for (let i = 0; i < files.length; i++) {
+                            const file = files[i];
+                            const progress = ((i / files.length) * 100).toFixed(0);
+                            progressBar.style.width = `${progress}%`;
+                            progressBar.textContent = `${progress}%`;
+
+                            const formData = new FormData();
+                            formData.append('audioFile', file);
+                            formData.append('targetFormat', formatSelect.value);
+                            formData.append('bitrate', bitrateRange.value);
+                            formData.append('sampleRate', sampleRate.value);
+                            formData.append('channels', channels.value);
+                            formData.append('volume', volume.value);
+
+                            const response = await fetch('converter.php', {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            if (!response.ok) {
+                                throw new Error(`Server error: ${response.status}`);
+                            }
+
+                            const result = await response.json();
+
+                            if (result.success) {
+                                convertedFiles.push({
+                                    url: result.downloadUrl,
+                                    filename: result.filename
+                                });
+                            } else {
+                                throw new Error(result.message);
+                            }
+                        }
+
+                        // Create ZIP download link
+                        const zipFormData = new FormData();
+                        convertedFiles.forEach((file, index) => {
+                            zipFormData.append(`files[${index}]`, file.url);
+                            zipFormData.append(`filenames[${index}]`, file.filename);
+                        });
+
+                        const zipResponse = await fetch('create_zip.php', {
+                            method: 'POST',
+                            body: zipFormData
+                        });
+
+                        if (!zipResponse.ok) {
+                            throw new Error('Failed to create ZIP file');
+                        }
+
+                        const zipResult = await zipResponse.json();
+
+                        if (zipResult.success) {
+                            const downloadLink = document.createElement('a');
+                            downloadLink.href = zipResult.zipUrl;
+                            downloadLink.className = 'download-link';
+                            downloadLink.textContent = 'Download All Files (ZIP)';
+                            downloadLinks.appendChild(downloadLink);
+                            showStatus('All conversions completed!', 'success');
+                        } else {
+                            throw new Error(zipResult.message);
+                        }
+                    }
+
+                    progressBar.style.width = '100%';
+                    progressBar.textContent = '100%';
+                    
+                } catch (error) {
+                    showStatus('Error: ' + error.message, 'error');
+                    progressBar.style.width = '0%';
+                    progressBar.textContent = '0%';
+                }
+            });
+
+            function showStatus(message, type) {
+                statusDiv.textContent = message;
+                statusDiv.className = 'status ' + type;
+                statusDiv.style.display = 'block';
+            }
+
+            // Audio Preview and Metadata
+            function showAudioPreview(file) {
+                const preview = document.getElementById('audioPreview');
+                const player = document.getElementById('previewPlayer');
+                const metadata = document.getElementById('metadata');
+                
+                const url = URL.createObjectURL(file);
+                player.src = url;
+                preview.style.display = 'block';
+                
+                // Create audio context for metadata
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const fileReader = new FileReader();
+                
+                fileReader.onload = function(e) {
+                    audioContext.decodeAudioData(e.target.result, function(buffer) {
+                        drawWaveform(buffer);
+                        audioEffects.style.display = 'block';
+                    });
+                };
+                
+                fileReader.readAsArrayBuffer(file);
+            }
+
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                seconds = Math.floor(seconds % 60);
+                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            // Waveform Visualization
+            const waveformCanvas = document.getElementById('waveform');
+            const waveformCtx = waveformCanvas.getContext('2d');
+            const waveformProgress = document.getElementById('waveformProgress');
+            const trimStart = document.getElementById('trimStart');
+            const trimEnd = document.getElementById('trimEnd');
+
+            function drawWaveform(audioBuffer) {
+                const width = waveformCanvas.width;
+                const height = waveformCanvas.height;
+                const data = audioBuffer.getChannelData(0);
+                const step = Math.ceil(data.length / width);
+                const amp = height / 2;
+
+                waveformCtx.clearRect(0, 0, width, height);
+                waveformCtx.beginPath();
+                waveformCtx.moveTo(0, amp);
+
+                for (let i = 0; i < width; i++) {
+                    const min = 1.0;
+                    const max = -1.0;
+                    for (let j = 0; j < step; j++) {
+                        const datum = data[(i * step) + j];
+                        if (datum < min) min = datum;
+                        if (datum > max) max = datum;
+                    }
+                    waveformCtx.lineTo(i, (1 + min) * amp);
+                    waveformCtx.lineTo(i, (1 + max) * amp);
+                }
+
+                waveformCtx.strokeStyle = '#3498db';
+                waveformCtx.stroke();
+            }
+
+            // Audio Effects
+            const audioEffects = document.getElementById('audioEffects');
+            const fadeIn = document.getElementById('fadeIn');
+            const fadeOut = document.getElementById('fadeOut');
+            const volumeBoost = document.getElementById('volumeBoost');
+            const equalizer = document.getElementById('equalizer');
+
+            // Update effect values display
+            fadeIn.addEventListener('input', () => {
+                document.getElementById('fadeInValue').textContent = fadeIn.value;
+            });
+            fadeOut.addEventListener('input', () => {
+                document.getElementById('fadeOutValue').textContent = fadeOut.value;
+            });
+            volumeBoost.addEventListener('input', () => {
+                document.getElementById('volumeBoostValue').textContent = volumeBoost.value;
+            });
+
+            // Keyboard Shortcuts
+            const shortcutHint = document.getElementById('shortcutHint');
+            const shortcuts = {
+                'Ctrl+O': 'Open files',
+                'Ctrl+Enter': 'Convert',
+                'Ctrl+Z': 'Download ZIP',
+                'Esc': 'Clear selection'
+            };
+
+            document.addEventListener('keydown', (e) => {
+                let shortcut = '';
+                if (e.ctrlKey) shortcut += 'Ctrl+';
+                if (e.key === 'o') {
+                    e.preventDefault();
+                    fileInput.click();
+                    shortcut += 'O';
+                } else if (e.key === 'Enter' && e.ctrlKey) {
+                    e.preventDefault();
+                    convertButton.click();
+                    shortcut += 'Enter';
+                } else if (e.key === 'z' && e.ctrlKey) {
+                    e.preventDefault();
+                    downloadZipBtn.click();
+                    shortcut += 'Z';
+                } else if (e.key === 'Escape') {
+                    fileInput.value = '';
+                    handleFiles([]);
+                    shortcut = 'Esc';
+                }
+
+                if (shortcut && shortcuts[shortcut]) {
+                    shortcutHint.textContent = shortcuts[shortcut];
+                    shortcutHint.style.display = 'block';
+                    setTimeout(() => {
+                        shortcutHint.style.display = 'none';
+                    }, 2000);
+                }
+            });
+
+            // Initialize
+            initializeCloudStorage();
+        });
+    </script>
+<script src="https://shrimpweb.com/apps/launcher.js?v=1" defer></script>
+</body>
+</html>
